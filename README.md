@@ -23,5 +23,5 @@ Questo è un bot per Discord scritto in Python utilizzando la libreria discord.p
 Questo progetto è sotto licenza MIT. Vedi il file LICENSE per ulteriori dettagli.
 Autori
 
-    imjustcri
-    defeatof13
+- ImJustCri
+- DefeatOf13
