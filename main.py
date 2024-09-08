@@ -3,6 +3,8 @@ import random
 import discord
 from discord import app_commands
 
+TOKEN = 0 # Inserire token bot qui'
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -124,16 +126,6 @@ async def agente(interaction: discord.Interaction):
     await interaction.response.send_message(
         f"Il tuo agente selezionato è: **{selected_agent}**")
 
-
-# # Aggiungi oggetti in una lista array
-# @tree.command(name="lista", description="Mostra questo messaggio")
-# async def lista(interaction: discord.Interaction, item: str):
-#     lista = []
-#     lista.append(item)
-#     await interaction.response.send_message(embed=discord.Embed(
-#         title="Lista:", description="\n".join(lista), color=discord.Color.red()))
-
-
 # Picker mappe Valorant
 @tree.command(name="mappa",
               description="Selezione random di mappe di Valorant")
@@ -203,7 +195,7 @@ async def help(interaction: discord.Interaction):
 
 
 try:
-    token = os.getenv("TOKEN") or ""
+    token = TOKEN or ""
     if token == "":
         raise Exception("Please add your token to the Secrets pane.")
     client.run(token)
