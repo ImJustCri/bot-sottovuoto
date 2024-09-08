@@ -21,7 +21,7 @@ Questo è un bot per Discord scritto in Python utilizzando la libreria discord.p
         /help: Mostra questo messaggio.
 
 Questo progetto è sotto licenza MIT. Vedi il file LICENSE per ulteriori dettagli.
-Autori
 
+## Autori
 - ImJustCri
 - DefeatOf13
