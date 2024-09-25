@@ -3,7 +3,7 @@ import random
 import discord
 from discord import app_commands
 
-TOKEN = 0 # Inserire token bot qui'
+TOKEN = os.getenv('DISCORD_TOKEN') # Create environmental variable for this to work
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -195,17 +195,11 @@ async def help(interaction: discord.Interaction):
 
 
 try:
-    token = TOKEN or ""
-    if token == "":
-        raise Exception("Please add your token to the Secrets pane.")
-    client.run(token)
+    if not TOKEN:
+        raise ValueError("Please set your Discord token in the environment variables.")
+    client.run(TOKEN)
 except discord.HTTPException as e:
     if e.status == 429:
-        print(
-            "The Discord servers denied the connection for making too many requests"
-        )
-        print(
-            "Get help from https://stackoverflow.com/questions/66724687/in-discord-py-how-to-solve-the-error-for-toomanyrequests"
-        )
+        print("Too many requests; please try again later.")
     else:
         raise e
