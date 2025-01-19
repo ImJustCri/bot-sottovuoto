@@ -2,26 +2,43 @@ import os
 import random
 import discord
 from discord import app_commands
+from discord.ext import commands
 
-TOKEN = os.getenv('DISCORD_TOKEN') # Create environmental variable for this to work
+TOKEN = 0 # inserire il proprio
+
+SOURCE_CHANNEL_ID = 0 # Inserire il proprio
+TARGET_CHANNEL_ID = 0 # Inserire il proprio
 
 intents = discord.Intents.default()
 intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 client = discord.Client(intents=intents,)
 tree = app_commands.CommandTree(client)
-
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
     await tree.sync()
+    channel = client.get_channel(1079415074332098582)
+    # await channel.send(f"Il bot è stato restartato.")
 
+# Mandare messaggi dalla chat 'typing'
+@tree.command(name="say", description="Riservato agli admin")
+async def say_command(interaction: discord.Interaction, message: str):
+    source_channel = interaction.channel
+    target_channel = client.get_channel(1079415074332098582)
+    
+    if source_channel.id == SOURCE_CHANNEL_ID:
+        await target_channel.send(message)
+        await interaction.response.send_message(f"Messaggio inviato a {target_channel.mention}")
+    else:
+        await interaction.response.send_message("Non puoi utilizzare questo comando in questo canale.")
+        
 # Saluta te stesso
 @tree.command(name="salutami", description="Saluta te stesso")
 async def salutami(interaction: discord.Interaction):
     await interaction.response.send_message(f"Ciao, {interaction.user.name}!")
-
 
 # Saluta utente specifico
 @tree.command(name="saluta", description="Saluta un utente specifico")
@@ -30,6 +47,11 @@ async def saluta(interaction: discord.Interaction, user: discord.Member):
     random_greeting = random.choice(greetings)
     await interaction.response.send_message(f"{random_greeting}, {user.name}!")
 
+# Età di un utente specifico
+@tree.command(name="age", description="Età di un utente specifico")
+async def saluta(interaction: discord.Interaction, user: discord.Member):
+    random_age = random.randint(1, 100)
+    await interaction.response.send_message(f"{user.mention} ha {random_age} anni!")
 
 # Randomnick
 @tree.command(name="randomnick",
@@ -37,7 +59,6 @@ async def saluta(interaction: discord.Interaction, user: discord.Member):
 async def randomnick(interaction: discord.Interaction):
     nicknames = [
         "Containment Breach",
-        "Sono un furry",
         "Francese DOC",
         "Sebastian",
         "Pandemonium",
@@ -81,6 +102,23 @@ async def randomnick(interaction: discord.Interaction):
         "Shaddyy",
         "THE CALL IS DEEPING",
         "I am 11",
+        "giro p secondigliano",
+        "we fratm",
+        "Testa di Moro",
+        "Fiara Cherragni",
+        "Satteo Malvini",
+        "Borgia Geloni",
+        "Pippo Nastriscia",
+        "Ped O'Phyle",
+        "Chris Todio",
+        "Luca Azzetto",
+        "Dee O'Kan",
+        "Homer Toso",
+        "Andrey Amin O'Renny",
+        "Eddy O'Kane",
+        "Micheal Pitolano",
+        "Masukato Laminkia",
+        "Luca Pocchione"
     ]
 
     random_nickname = random.choice(nicknames)
@@ -95,21 +133,33 @@ async def wiki(interaction: discord.Interaction, search_term: str):
     try:
         import wikipedia
         wikipedia.set_lang("it")
+        
+        # Defer the response to avoid timeout
+        await interaction.response.defer(thinking=True)
+        
         result = wikipedia.summary(search_term, sentences=2)
         page = wikipedia.page(search_term)
         image_url = page.images[0] if page.images else None
+        
         embed = discord.Embed(title=page.title, description=result)
         if image_url:
             embed.set_image(url=image_url)
-        await interaction.response.send_message(embed=embed)
+        
+        # Send the response
+        await interaction.followup.send(embed=embed)
+    
     except wikipedia.exceptions.PageError:
-        await interaction.response.send_message(embed=discord.Embed(
+        await interaction.followup.send(embed=discord.Embed(
             description="Non ho trovato nulla su Wikipedia."))
+    
     except wikipedia.exceptions.DisambiguationError as e:
-        await interaction.response.send_message(embed=discord.Embed(
-            description=
-            "Ho trovato più risultati per la tua ricerca. Specifica meglio."))
-
+        await interaction.followup.send(embed=discord.Embed(
+            description="Ho trovato più risultati per la tua ricerca. Specifica meglio."))
+    
+    except Exception as e:
+        # Handle any other exceptions
+        await interaction.followup.send(embed=discord.Embed(
+            description="Si è verificato un errore durante la ricerca."))
 
 # Picker agenti Valorant
 @tree.command(name="agente",
@@ -119,7 +169,7 @@ async def agente(interaction: discord.Interaction):
         "Jett", "Sova", "Sage", "Phoenix", "Cypher", "Raze", "Omen",
         "Breach", "Viper", "Killjoy", "Chamber", "Neon", "Yoru", "Fade",
         "Skye", "Harbor", "Astra", "KAY/O", "Deadlock", "Reyna", "Clove",
-        "Iso"
+        "Iso", "Vyse"
     ]
 
     selected_agent = random.choice(agenti)
@@ -160,6 +210,17 @@ async def moneta(interaction: discord.Interaction):
     await interaction.response.send_message(
         f"Il risultato è: **{risultato}**")
 
+#Bestemmiometro - ogni volta che un utente dice "Dio" manda "non si bestemmia"
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    if any(x == message.content.lower() for x in [
+            "dio", "dIo", "dIO", "DIO", "diO", "DiO", "Dio", "Diò", "Dió",
+            "d1o", "god", "GOD", "God"
+    ]):
+        await message.reply("Non si bestemmia 😡")
+
 
 # Comando Help
 @tree.command(name="help", description="Mostra questo messaggio")
@@ -172,7 +233,8 @@ async def help(interaction: discord.Interaction):
         name="Divertimento",
         value="Salutami: Saluta te stesso\n"
         "Saluta [nome]: Saluta un utente specifico\n"
-        "Randomnick: Cambia il tuo nickname in modo random\n",
+        "Randomnick: Cambia il tuo nickname in modo random\n"
+        "Age: Mostra età (random) di una persona\n",
         inline=False
     ).add_field(
         name="Valorant",
@@ -195,11 +257,17 @@ async def help(interaction: discord.Interaction):
 
 
 try:
-    if not TOKEN:
-        raise ValueError("Please set your Discord token in the environment variables.")
-    client.run(TOKEN)
+    token = TOKEN or ""
+    if token == "":
+        raise Exception("Please add your token to the Secrets pane.")
+    client.run(token)
 except discord.HTTPException as e:
     if e.status == 429:
-        print("Too many requests; please try again later.")
+        print(
+            "The Discord servers denied the connection for making too many requests"
+        )
+        print(
+            "Get help from https://stackoverflow.com/questions/66724687/in-discord-py-how-to-solve-the-error-for-toomanyrequests"
+        )
     else:
         raise e
