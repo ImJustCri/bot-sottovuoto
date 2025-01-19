@@ -3,8 +3,12 @@ import random
 import discord
 from discord import app_commands
 from discord.ext import commands
+from dotenv import load_dotenv
 
-TOKEN = 0 # inserire il proprio
+# Carica le variabili di ambiente dal file .env
+load_dotenv()
+
+TOKEN = os.getenv('DISCORD_TOKEN') # La variabile d'ambiente viene caricata dal file .env
 
 SOURCE_CHANNEL_ID = 0 # Inserire il proprio
 TARGET_CHANNEL_ID = 0 # Inserire il proprio
